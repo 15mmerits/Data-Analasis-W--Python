@@ -12,6 +12,10 @@ working on it.... I've done working on these ;
 - Identifying and Handling Missing Values
 - Data Formatting
 - Applying Normalization to dataset
+- Binning
+- Bins Visualization
+- Dummy Variables
+- Export
 
 
 ## Usage
@@ -47,3 +51,13 @@ Wrangle features in a dataset and making it meaningful for data analysis.
 
 - 5> Applying Normalization to dataset -- 
 Relevance of using feature scaling on data and Normalization and Standardization effects on data analysis.
+
+- 6> Binning -- 
+A process of transforming continuous numerical variables into discrete categorical 'bins' for grouped analysis.
+
+- 7> Bins Visualization -- 
+A histogram is used to visualize the distribution of bins
+
+- 8> Dummy Variable --
+It's a numerical variable used to label categories. They are called 'dummies' because the numbers themselves don't have inherent meaning.
+w/ this dummy vaiable,  we can use categorical variables for regression analysis.
