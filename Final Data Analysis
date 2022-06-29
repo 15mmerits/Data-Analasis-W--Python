@@ -179,3 +179,6 @@ df.head()
 
 profile = pp.ProfileReport(df)
 profile.to_file(r'C:\Users\Jay\Desktop\DS\Analysis\Pandas_Profiling\new.html')
+
+            # Exporting as CSV
+df.to_csv(r'C:\Users\Jay\Desktop\DS\Analysis\Pandas_Profiling\new1.csv', index= False)
