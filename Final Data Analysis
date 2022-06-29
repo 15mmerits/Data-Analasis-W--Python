@@ -1,0 +1,181 @@
+# # import pandas_profiling as pp
+# # # pp.ProfileReport(df)
+# df.describe()
+
+    ## Importing Libraries >>
+
+import pandas_profiling as pp
+from bs4 import BeautifulSoup
+from httpcore import request
+import pandas as pd
+import numpy as np 
+import matplotlib.pyplot as plt
+from sqlalchemy import column
+
+# Local Data named 'Automobile Dataset.csv' imported, also placing the 'url' below JIC.
+# URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/autos/imports-85.data"
+
+filename = r"C:\Users\Jay\Desktop\DS\Analysis\Automobile Dataset.csv"
+headers = ["symboling","normalized-losses","make","fuel-type","aspiration", "num-of-doors","body-style",
+         "drive-wheels","engine-location","wheel-base", "length","width","height","curb-weight","engine-type",
+         "num-of-cylinders", "engine-size","fuel-system","bore","stroke","compression-ratio","horsepower",
+         "peak-rpm","city-mpg","highway-mpg","price"]
+
+# Reading the Dataset in Pandas DataFrame
+
+df = pd.read_csv(filename , names = headers)
+df.head()                                   
+
+
+                      ## Working with Missing Data and then Manipulation ##
+
+df = df.replace('?', np.NaN)
+df.head()
+
+                      ## Identifying Missing Data ##
+
+missing_data = df.isnull()
+missing_data.head()
+
+                      ## Counting Missing Data ##
+
+for column in missing_data.columns.values.tolist():
+    print(column)
+    print(missing_data[column].value_counts())
+    print('')
+
+                      ## Generating Basic Profile Report ## 
+
+profile = pp.ProfileReport(df)
+# profile.to_file(r'C:\Users\Jay\Desktop\Before.html')
+
+                      ## Manipulation Part for missing column ##
+
+# 1
+avg_norm_loss = df['normalized-losses'].astype(float).mean(axis= 0)
+print('Average of normalized-losses is', avg_norm_loss)
+
+df['normalized-losses'].replace(np.NaN , avg_norm_loss , inplace = True)
+df['normalized-losses']
+
+# 2 
+avg_bore = df['bore'].astype(float).mean(axis= 0)
+print('Average of Bore is' , avg_bore)
+
+df['bore'].replace(np.NaN , avg_bore , inplace= True)
+df['bore']
+
+# 3 
+avg_stroke = df['stroke'].astype(float).mean(axis= 0)
+print('Average of stroke is', avg_stroke)
+
+df['stroke'].replace(np.NaN, avg_stroke , inplace= True)
+df['stroke']
+
+# 4 
+avg_hp = df['horsepower'].astype(float).mean(axis= 0)
+print('Average of horsepower is', avg_hp)
+
+df['horsepower'].replace(np.NaN , avg_hp, inplace= True)
+df['horsepower']
+
+# 5 
+avg_peak_rpm = df['peak-rpm'].astype(float).mean(axis= 0)
+print('Average of Peak-RPM is', avg_peak_rpm)
+
+df['peak-rpm'].replace(np.NaN, avg_peak_rpm , inplace= True)
+df['peak-rpm']
+
+    # Dealing w/ missing values with most common type >
+                      #{ df['num-of-doors'].value_counts().idxmax() }
+
+df['num-of-doors'].replace(np.NaN , 'four' , inplace= True)
+df['num-of-doors']
+
+    # Dropping commplete row named 'price' with no value (NaN) since we need to predict 'price'
+
+df.dropna(subset = ['price'], axis= 0 , inplace= True)
+df.reset_index(drop= True, inplace= True)
+
+df.head()
+
+             #^^ Now, We have Dataset w/ No missing value ^^#
+
+    ## And Now, Making sure the dataset is in correct data format
+
+df.dtypes
+    # df.head(10)    << Untag to see first 10 rows.
+
+df['normalized-losses'] = df['normalized-losses'].astype(int)
+df[['bore', 'stroke', 'price', 'peak-rpm']] = df[['bore', 'stroke', 'price', 'peak-rpm']].astype(float)
+df.dtypes
+df.head()
+
+    ## ^^ Now We've cleaned dataset w/ no missing value and ofcourse w/ correct data format.  ^^ ##
+
+                    ## Data Standardization >>
+                    # Converting 'mpg' to 'L/100 km'. formula = 
+                        # L/100 km = 235/ mpg
+                    
+df['city-L/100km'] = 235/df['city-mpg']
+df.head()      
+
+df['highway-L/100km'] = 235/df['highway-mpg']
+df.head()
+
+## Data Normalization >>
+                    # Normalizing these columns 'height' , 'length' and 'width'.
+                    # scaling variables so their value ranges from 0 to 1. 
+
+df[['length', 'width', 'height']] = df[['length', 'width', 'height']]/df[['length', 'width', 'height']].max()
+df[['length', 'width', 'height']].head()     
+
+## Binning Data >>
+import matplotlib as plt
+from matplotlib import pyplot
+
+df['horsepower'] = df['horsepower'].astype(int, copy= True)
+plt.pyplot.hist(df['horsepower'])
+
+plt.pyplot.title('horsepower bins')
+plt.pyplot.xlabel('horsepower')
+plt.pyplot.ylabel('counts')
+
+bins= np.linspace(min(df['horsepower']), max(df['horsepower']), 4)
+group_names = ['Low', 'Medium', 'High']
+df['horsepower-binned'] = pd.cut(df['horsepower'], bins, labels= group_names )
+df[['horsepower', 'horsepower-binned']].head()
+df['horsepower-binned'].value_counts()
+
+                # Now, plotting distribution of all bins
+
+plt.pyplot.bar(group_names, df['horsepower-binned'].value_counts())
+
+plt.pyplot.title('horsepower bins')
+plt.pyplot.xlabel('horsepower')
+plt.pyplot.ylabel('count')
+
+                # Bins Visualization >>
+
+plt.pyplot.hist(df['horsepower'], bins = 3)
+plt.pyplot.title('horsepower bins')
+plt.pyplot.xlabel('horsepower')
+plt.pyplot.ylabel('count')
+
+                         ## Indicator Variable (or Dummy Variable) >>
+            # using Dummy so we can use categorical variables for regression
+            # since regression only understand 'numbers'.
+
+df.columns
+dummy_var1 = pd.get_dummies(df['fuel-type'])
+dummy_var1.head()
+dummy_var1.rename(columns= {'gas': 'fuel-type-gas', 'diesel': 'fuel-type-diesel'}, inplace= True)
+dummy_var1.head() 
+
+# merging dataframe 'df' and 'dummy_var1'
+df = pd.concat([df, dummy_var1], axis= 1)
+df.drop('fuel-type', axis= 1, inplace= True)
+df.head()
+
+profile = pp.ProfileReport(df)
+profile.to_file(r'C:\Users\Jay\Desktop\DS\Analysis\Pandas_Profiling\new.html')
