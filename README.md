@@ -17,7 +17,7 @@ working on it.... I've done working on these ;
 ## Usage
 
 ```javascript
-df.head() , df.info() , df.dtypes() , df.tail() ,...
+df.head() , df.info() , df.dtypes() , df.tail() ,... etc.
 
 ```
 
