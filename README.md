@@ -1,7 +1,7 @@
 
 # Data Analasis W/ Python
 
-working on it.... I've done working on these ;
+Finally, I've done working on these ;
 
 
 
